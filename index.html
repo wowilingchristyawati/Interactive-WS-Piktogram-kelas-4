@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Worksheet Piktogram CTL - Kelas 4 (Final)</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Dasar & Warna Pastel */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #fce4ec; /* Pastel Pink */
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            max-width: 900px;
+            width: 100%;
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        h1, h2, h3 {
+            color: #4a148c; /* Ungu Gelap */
+            text-align: center;
+            font-weight: 800;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        /* Styling Halaman dengan Background Tematik */
+        .page {
+            display: none;
+            flex-grow: 1;
+            animation: fadeIn 0.6s ease-out;
+            padding-bottom: 20px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        /* >>> GANTI URL INI DENGAN PATH LOKAL ANDA <<< */
+        /* Contoh: url('img/sekolah_luar.png') */
+        .page-start { background-image: url('https://via.placeholder.com/900x600/E0F7FA/311B92?text=VISUAL+SEKOLAH+DEPAN'); }
+        .page-materi { background-image: url('https://via.placeholder.com/900x600/C8E6C9/1B5E20?text=VISUAL+LAPANGAN+OLAHRAGA'); }
+        .page-sesi1, .page-sesi2 { background-image: url('https://via.placeholder.com/900x600/FFECB3/F57F17?text=VISUAL+RUANG+KELAS'); }
+        .page-hasil-sesi1, .page-hasil-akhir { background-image: url('https://via.placeholder.com/900x600/B2EBF2/006064?text=VISUAL+PERPUSTAKAAN'); }
+        .page-penutup { background-image: url('https://via.placeholder.com/900x600/E0F7FA/311B92?text=VISUAL+SEKOLAH+DEPAN'); }
+
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.75); /* Sedikit lebih gelap agar teks lebih jelas */
+            border-radius: 15px;
+            z-index: -1;
+        }
+
+        /* Styling Form & Tombol */
+        input[type="text"], button {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 18px;
+            border-radius: 12px;
+            border: 2px solid #ce93d8;
+            font-size: 18px;
+            font-weight: 600;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        button {
+            background-color: #8e24aa;
+            color: white;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            background-color: #6a1b9a;
+            transform: translateY(-2px);
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        /* Styling Soal dan Pilihan */
+        .question-card {
+            padding: 30px;
+            border-radius: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .question-text-wrapper {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        .question-text {
+            flex-grow: 1;
+            font-size: 20px;
+            font-weight: 700;
+            color: #311b92;
+        }
+        .options label {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 10px;
+            border: 1px solid #e1bee7;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-weight: 600;
+            font-size: 17px;
+            background-color: #ffffff;
+        }
+        .options label:hover {
+            background-color: #f3e5f5;
+        }
+        .options input[type="radio"] {
+            margin-right: 18px;
+            width: auto;
+            transform: scale(1.3);
+            flex-shrink: 0;
+        }
+        
+        /* Ikon Speaker (Emoji) */
+        .speaker-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 28px;
+            color: #8e24aa;
+            margin-left: auto;
+            padding: 0;
+            line-height: 1;
+            flex-shrink: 0;
+            width: 35px;
+        }
+        .speaker-btn:hover {
+            color: #4a148c;
+            transform: scale(1.1);
+        }
+
+        /* Feedback Visual */
+        .feedback-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        .feedback-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .feedback-content {
+            font-size: 120px;
+            text-align: center;
+            animation: bounceIn 0.6s ease-out;
+            border-radius: 25px;
+            padding: 50px 70px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            color: white;
+            font-weight: 800;
+        }
+        .feedback-correct { background-color: #4CAF50; } /* Hijau */
+        .feedback-incorrect { background-color: #F44336; } /* Merah */
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        
+        /* Animasi X (Menggunakan CSS Murni) */
+        .x-mark {
+            display: inline-block;
+            position: relative;
+            width: 1em; height: 1em;
+            transform: rotate(45deg);
+        }
+        .x-mark::before, .x-mark::after {
+            content: ''; position: absolute; background-color: white; border-radius: 5px;
+            animation: xMarkAnimation 0.5s ease-out forwards;
+        }
+        .x-mark::before { width: 100%; height: 18px; top: 50%; left: 0; margin-top: -9px; }
+        .x-mark::after { width: 18px; height: 100%; top: 0; left: 50%; margin-left: -9px; }
+        @keyframes xMarkAnimation {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+
+        /* Animasi Senyum (Emoji) */
+        @keyframes smileAnimation {
+            0% { transform: scale(0.3) rotate(-30deg); opacity: 0; }
+            50% { transform: scale(1.3) rotate(15deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        .emoji-smile {
+            animation: smileAnimation 0.7s ease-out forwards;
+        }
+
+        /* Hasil Akhir */
+        .hebat { font-size: 48px; color: #ffc107; text-shadow: 4px 4px #ff8f00; animation: pulse 1.5s infinite alternate; }
+        .semangat { font-size: 38px; color: #1976d2; text-shadow: 2px 2px #0d47a1; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <audio id="audio-player" style="display: none;"></audio>
+    
+    <div id="page-start" class="page page-start" style="display: flex; flex-direction: column; justify-content: center;">
+        <h1>🎓 Interactive Worksheet: Piktogram CTL</h1>
+        <h2>Kelas 4 Sekolah Dasar</h2>
+        <p style="text-align: center; font-weight: 600; color: #6a1b9a;">Silakan masukkan nama lengkapmu untuk memulai:</p>
+        <input type="text" id="input-nama-siswa" placeholder="Nama Lengkap Siswa">
+        <button onclick="startWorksheet()">▶️ Mulai Belajar</button>
+    </div>
+
+    <div id="page-materi" class="page page-materi">
+        <h2>📚 Scan untuk Review Materi Piktogram</h2>
+        <div class="barcode-container">
+            <p style="color: #6a1b9a; font-weight: 600;">Scan barcode di bawah ini untuk mengakses materi pembelajaran!</p>
+            <img src="https://i.ibb.co/3sX8L69/qr.png" alt="QR Code Materi Piktogram"> 
+        </div>
+        <div class="affirmation">
+            <p>Sudah selesai mencermati materi melalui barcode?</p>
+            <p id="affirmation-text"></p>
+        </div>
+        <div class="nav-buttons">
+            <button onclick="previousPage()"><span style="font-size: 1.5em;">↩️</span> Kembali</button>
+            <button onclick="startSesi1()">➡️ Siap Menganalisis Soal</button>
+        </div>
+    </div>
+
+    <div id="page-sesi1" class="page page-sesi1">
+        <h2>Analisis Data Sederhana (Soal 1-10)</h2>
+        <h3 id="question-title-sesi1">Soal ke 1 dari 10</h3>
+        <div id="question-card-sesi1" class="question-card"></div>
+        <div class="nav-buttons">
+            <button onclick="previousQuestion()"><span style="font-size: 1.5em;">↩️</span> Soal Sebelumnya</button>
+            <button id="next-button-sesi1" onclick="checkAnswerAndNext(1)">➡️ NEXT</button>
+        </div>
+    </div>
+
+    <div id="page-hasil-sesi1" class="page page-hasil-sesi1">
+        <h2>🎉 Hasil Sesi 1 (Data Awal)</h2>
+        <p style="text-align: center; font-weight: 600; color: #6a1b9a;">Halo, <span id="nama-siswa-sesi1" class="correct"></span>!</p>
+        <div class="result-score">
+            Benar: <span id="score-correct-sesi1">0</span> / Salah: <span id="score-incorrect-sesi1">0</span>
+        </div>
+        <div id="feedback-sesi1" class="feedback"></div>
+        <div class="nav-buttons">
+            <button onclick="previousPage()"><span style="font-size: 1.5em;">↩️</span> Kembali</button>
+            <button onclick="startSesi2()">➡️ Lanjut ke Soal Analisis Kritis</button>
+        </div>
+    </div>
+
+    <div id="page-sesi2" class="page page-sesi2">
+        <h2>Analisis Data Kritis (Soal 11-15)</h2>
+        <h3 id="question-title-sesi2">Soal ke 1 dari 5</h3>
+        <div id="question-card-sesi2" class="question-card"></div>
+        <div class="nav-buttons">
+            <button onclick="previousQuestion()"><span style="font-size: 1.5em;">↩️</span> Soal Sebelumnya</button>
+            <button id="next-button-sesi2" onclick="checkAnswerAndNext(2)">➡️ NEXT</button>
+        </div>
+    </div>
+
+    <div id="page-hasil-akhir" class="page page-hasil-akhir">
+        <h2>🏆 Hasil Akhir Pembelajaran</h2>
+        <p style="text-align: center; font-weight: 600; color: #6a1b9a;">Terima kasih, <span id="nama-siswa-akhir" class="correct"></span>!</p>
+        <div class="result-score">
+            Total Jawaban Benar: <span id="score-total-akhir">0</span> / 15
+        </div>
+        <div id="feedback-akhir" class="feedback"></div>
+        
+        <h3>📝 Koreksi Jawaban (1-15)</h3>
+        <div id="koreksi-jawaban" class="koreksi-jawaban"></div>
+        <div class="nav-buttons">
+            <button onclick="previousPage()"><span style="font-size: 1.5em;">↩️</span> Kembali</button>
+            <button onclick="showPage('page-penutup')">➡️ NEXT</button>
+        </div>
+    </div>
+
+    <div id="page-penutup" class="page page-penutup" style="justify-content: center; align-items: center;">
+        <h1 class="hebat" style="margin-top: 50px;">Thank You!</h1>
+        <p style="text-align: center; font-size: 22px; font-weight: 700; color: #6a1b9a;">Kamu telah menyelesaikan Interactive Worksheet ini.</p>
+        <button onclick="exitWorksheet()">🚪 EXIT</button>
+    </div>
+
+</div>
+
+<div id="feedback-overlay" class="feedback-overlay">
+    <div id="feedback-content" class="feedback-content"></div>
+</div>
+
+<script>
+    // --- Variabel Global ---
+    let userName = "";
+    let currentSesi = 1; // 1 atau 2
+    let currentQuestionIndex = 0; // Global index for `questions` array (0-14)
+    let userAnswers = new Array(15).fill(null); // Menyimpan jawaban pengguna
+    let scoreSesi1 = 0;
+    let scoreTotal = 0;
+    const audioPlayer = document.getElementById('audio-player');
+    let historyPages = ['page-start']; // Untuk tombol previous
+    
+    // Objek untuk memetakan halaman ke nama visual class
+    const pageVisuals = {
+        'page-start': 'page-start',
+        'page-materi': 'page-materi',
+        'page-sesi1': 'page-sesi1',
+        'page-hasil-sesi1': 'page-hasil-sesi1',
+        'page-sesi2': 'page-sesi2',
+        'page-hasil-akhir': 'page-hasil-akhir',
+        'page-penutup': 'page-penutup'
+    };
+
+    // --- DATA SOAL ---
+    // GANTI PATH AUDIO INI DENGAN PATH LOKAL ANDA
+    const questions = [
+        // Sesi 1: 10 Soal Mudah & Sedang (Indeks 0-9)
+        { id: 1, text: "Piktogram menunjukkan jumlah Mainan di rumah (Boneka, Mobil, Bola). Kunci: 🧸=1 mainan. Jika ada 5 Boneka, 8 Mobil, dan 3 Bola, berapakah selisih mainan terbanyak dan tersedikit?", 
+            options: ["2", "3", "5", "6"], answer: "C", audioQ: "audio/q1.mp3", audioOpt: ["audio/q1oA.mp3", "audio/q1oB.mp3", "audio/q1oC.mp3", "audio/q1oD.mp3"] },
+        { id: 2, text: "Piktogram Makanan Favorit Kantin (Soto, Bakso, Nasi Goreng). Kunci: 👨=5 siswa. Jika Soto ada 6 gambar dan Bakso ada 4 gambar, berapa total siswa yang disurvei?", 
+            options: ["40 siswa", "50 siswa", "55 siswa", "60 siswa"], answer: "B", audioQ: "audio/q2.mp3", audioOpt: ["audio/q2oA.mp3", "audio/q2oB.mp3", "audio/q2oC.mp3", "audio/q2oD.mp3"] },
+        { id: 3, text: "Piktogram Jenis Buku di Perpustakaan (Cerita, Sains, Sejarah). Kunci: 📖=10 buku. Buku Cerita 120, Sains 90, Sejarah 150. Jenis buku apakah yang paling sedikit?", 
+            options: ["Cerita", "Sains", "Sejarah", "Cerita dan Sains"], answer: "B", audioQ: "audio/q3.mp3", audioOpt: ["audio/q3oA.mp3", "audio/q3oB.mp3", "audio/q3oC.mp3", "audio/q3oD.mp3"] },
+        { id: 4, text: "Piktogram Hasil Panen Kebun (Mangga, Pisang, Jeruk). Kunci: 🧺=15 buah. Panen Pisang 30 buah, Mangga 45 buah. Berapa total gambar keranjang untuk Pisang dan Mangga?", 
+            options: ["5 gambar", "6 gambar", "7 gambar", "8 gambar"], answer: "A", audioQ: "audio/q4.mp3", audioOpt: ["audio/q4oA.mp3", "audio/q4oB.mp3", "audio/q4oC.mp3", "audio/q4oD.mp3"] },
+        { id: 5, text: "Data Anggota Keluarga (Ayah, Ibu, Anak). Jika 👨 = 2 orang. Jika di keluarga Rudi ada 1 ayah, 1 ibu, dan 2 anak, berapakah total gambar yang dibutuhkan?", 
+            options: ["1 gambar", "2 gambar", "3 gambar", "4 gambar"], answer: "B", audioQ: "audio/q5.mp3", audioOpt: ["audio/q5oA.mp3", "audio/q5oB.mp3", "audio/q5oC.mp3", "audio/q5oD.mp3"] },
+        { id: 6, text: "Piktogram Minuman Kesukaan Teman (Susu, Teh, Jus). Susu 4 gambar, Teh 3 gambar, Jus 5 gambar. Kunci: 🥤=8 orang. Berapakah jumlah orang yang suka Jus?", 
+            options: ["30 orang", "35 orang", "40 orang", "50 orang"], answer: "C", audioQ: "audio/q6.mp3", audioOpt: ["audio/q6oA.mp3", "audio/q6oB.mp3", "audio/q6oC.mp3", "audio/q6oD.mp3"] },
+        { id: 7, text: "Piktogram Waktu Belajar di Rumah (per hari). Senin 1 jam, Selasa 2 jam, Rabu 1 jam, Kamis 3 jam. Kunci: 🕰️=0.5 jam. Berapa gambar jam pada hari Kamis?", 
+            options: ["4 gambar", "5 gambar", "6 gambar", "7 gambar"], answer: "C", audioQ: "audio/q7.mp3", audioOpt: ["audio/q7oA.mp3", "audio/q7oB.mp3", "audio/q7oC.mp3", "audio/q7oD.mp3"] },
+        { id: 8, text: "Piktogram Jenis Kendaraan di Sekolah (Motor, Sepeda, Mobil). Motor 15, Sepeda 25, Mobil 10. Kunci: 🛵=5 kendaraan. Berapa total gambar yang ada pada piktogram tersebut?", 
+            options: ["8 gambar", "10 gambar", "12 gambar", "14 gambar"], answer: "B", audioQ: "audio/q8.mp3", audioOpt: ["audio/q8oA.mp3", "audio/q8oB.mp3", "audio/q8oC.mp3", "audio/q8oD.mp3"] },
+        { id: 9, text: "Piktogram Jumlah Siswa di Kelas A, B, dan C. Kelas A 30 siswa, Kelas B 25 siswa, Kelas C 35 siswa. Kunci: 🧑‍🎓=5 siswa. Manakah pernyataan yang BENAR?", 
+            options: ["Jumlah gambar di Kelas A adalah 5", "Total siswa adalah 80", "Kelas C memiliki 1 gambar lebih banyak dari Kelas A", "Kelas A memiliki 1 gambar lebih sedikit dari Kelas C"], answer: "D", audioQ: "audio/q9.mp3", audioOpt: ["audio/q9oA.mp3", "audio/q9oB.mp3", "audio/q9oC.mp3", "audio/q9oD.mp3"] },
+        { id: 10, text: "Piktogram Hewan Peliharaan Lingkungan (Kucing, Ikan, Burung). Kunci: 🐾=20 ekor. Kucing 3 gambar, Ikan 5 gambar, Burung 4 gambar. Berapa kali lipat jumlah Ikan dari Kucing?", 
+            options: ["1.5 kali", "1.67 kali", "2 kali", "2.5 kali"], answer: "B", audioQ: "audio/q10.mp3", audioOpt: ["audio/q10oA.mp3", "audio/q10oB.mp3", "audio/q10oC.mp3", "audio/q10oD.mp3"] },
+        
+        // Sesi 2: 5 Soal Sulit (Indeks 10-14)
+        { id: 11, text: "Piktogram Dana Sumbangan. Kunci: 💰=Rp50.000 dan 🪙=Rp5.000. Jika terkumpul 2 gambar 💰 dan 4 gambar 🪙, berapakah total dana yang terkumpul?", 
+            options: ["Rp100.000", "Rp110.000", "Rp120.000", "Rp125.000"], answer: "C", audioQ: "audio/q11.mp3", audioOpt: ["audio/q11oA.mp3", "audio/q11oB.mp3", "audio/q11oC.mp3", "audio/q11oD.mp3"] },
+        { id: 12, text: "Piktogram Pengunjung Perpustakaan (Senin-Kamis). Senin 10, Selasa 15, Rabu 20, Kamis 25. Kunci: 🧍=5 orang. Jika tren (pola penambahan) berlanjut, berapa perkiraan pengunjung pada hari Jumat?", 
+            options: ["30 orang", "35 orang", "40 orang", "45 orang"], answer: "A", audioQ: "audio/q12.mp3", audioOpt: ["audio/q12oA.mp3", "audio/q12oB.mp3", "audio/q12oC.mp3", "audio/q12oD.mp3"] },
+        { id: 13, text: "Piktogram Target Daur Ulang. Target 100 botol. Kunci: ♻️=10 botol. Jika piktogram sudah memiliki 6 gambar ♻️, berapa gambar ♻️ yang harus ditambahkan agar target tercapai?", 
+            options: ["3 gambar", "4 gambar", "5 gambar", "6 gambar"], answer: "B", audioQ: "audio/q13.mp3", audioOpt: ["audio/q13oA.mp3", "audio/q13oB.mp3", "audio/q13oC.mp3", "audio/q13oD.mp3"] },
+        { id: 14, text: "Piktogram awal menunjukkan 200 hasil panen menggunakan kunci 🌾=50. Jika kunci diubah menjadi 🌾=20, berapakah total gambar baru yang dibutuhkan untuk data 200 panen?", 
+            options: ["2 gambar", "4 gambar", "8 gambar", "10 gambar"], answer: "D", audioQ: "audio/q14.mp3", audioOpt: ["audio/q14oA.mp3", "audio/q14oB.mp3", "audio/q14oC.mp3", "audio/q14oD.mp3"] },
+        { id: 15, text: "Piktogram Profesi Orang Tua. Kunci: 👤=20 orang. Petani 5 gambar, Guru 3 gambar, Wiraswasta 4 gambar. Manakah kesimpulan yang PALING LOGIS?", 
+            options: ["Petani adalah profesi yang paling diminati", "Hanya 60 orang yang bekerja sebagai Guru", "Total orang tua yang disurvei adalah 240", "Jumlah Wiraswasta lebih sedikit 20 orang dari Petani"], answer: "B", audioQ: "audio/q15.mp3", audioOpt: ["audio/q15oA.mp3", "audio/q15oB.mp3", "audio/q15oC.mp3", "audio/q15oD.mp3"] }
+    ];
+
+    // --- FUNGSI NAVIGASI ---
+    function showPage(pageId, recordHistory = true) {
+        // Stop audio saat pindah halaman
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        
+        document.querySelectorAll('.page').forEach(page => {
+            page.style.display = 'none';
+        });
+        
+        const currentPageElement = document.getElementById(pageId);
+        currentPageElement.style.display = 'flex';
+        
+        // Atur visual class untuk latar belakang
+        currentPageElement.className = `page ${pageVisuals[pageId]}`;
+
+        // Update History
+        if (recordHistory) {
+            const lastPage = historyPages[historyPages.length - 1];
+            if (lastPage !== pageId) {
+                historyPages.push(pageId);
+            }
+        }
+    }
+
+    function previousPage() {
+        if (historyPages.length > 1) {
+            historyPages.pop(); // Hapus halaman saat ini dari histori
+            const previousPageId = historyPages[historyPages.length - 1];
+            showPage(previousPageId, false); // Tampilkan halaman sebelumnya tanpa menambahkannya ke histori
+        } else {
+            // Jika hanya di halaman 'page-materi', kembali ke 'page-start'
+            showPage('page-start', false);
+        }
+    }
+
+    function previousQuestion() {
+        if (currentQuestionIndex > 0) {
+            // Jika di Sesi 1 dan bukan soal pertama Sesi 1
+            if (currentSesi === 1 && currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion();
+            } 
+            // Jika di Sesi 2 dan bukan soal pertama Sesi 2 (indeks 10)
+            else if (currentSesi === 2 && currentQuestionIndex > 10) {
+                currentQuestionIndex--;
+                displayQuestion();
+            }
+            // Jika di soal pertama Sesi 2, kembali ke halaman hasil Sesi 1
+            else if (currentSesi === 2 && currentQuestionIndex === 10) {
+                showPage('page-hasil-sesi1');
+                currentSesi = 1; // Kembali ke konteks sesi 1
+            }
+            // Jika di soal pertama Sesi 1, kembali ke halaman materi
+            else if (currentSesi === 1 && currentQuestionIndex === 0) {
+                showPage('page-materi');
+            }
+        }
+    }
+
+    // --- Laman Awal ---
+    function startWorksheet() {
+        userName = document.getElementById('input-nama-siswa').value.trim();
+        if (userName === "") {
+            alert("Mohon masukkan nama Anda untuk memulai!");
+            return;
+        }
+        document.getElementById('affirmation-text').textContent = `Kamu hebat, ${userName}! Ayo analisa soal berikut ini.`;
+        showPage('page-materi');
+    }
+    
+    // Fungsi untuk memutar audio
+    function playAudio(audioPath) {
+        // Placeholder check untuk memastikan tombol audio tidak menyebabkan error
+        if (audioPath && audioPath.startsWith('audio/')) { 
+            audioPlayer.src = audioPath;
+            audioPlayer.play().catch(e => {
+                console.error("Gagal memutar audio. Pastikan file audio tersedia di path:", audioPath, e);
+                alert(`Simulasi Audio: ${audioPath}\n(Gagal memutar file. Pastikan Anda punya folder 'audio' dan file .mp3 di dalamnya!)`);
+            });
+        } else {
+            alert("Simulasi Audio: File audio tidak ditemukan atau path salah.");
+        }
+    }
+
+    // --- Sesi 1 ---
+    function startSesi1() {
+        currentSesi = 1;
+        currentQuestionIndex = 0;
+        userAnswers.fill(null); // Reset Jawaban jika memulai lagi
+        historyPages = ['page-start', 'page-materi', 'page-sesi1']; // Reset History
+        showPage('page-sesi1');
+        displayQuestion();
+    }
+
+    // --- Sesi 2 ---
+    function startSesi2() {
+        currentSesi = 2;
+        currentQuestionIndex = 10;
+        historyPages.push('page-sesi2'); // Tambahkan Sesi 2 ke history
+        showPage('page-sesi2');
+        displayQuestion();
+    }
+
+    function displayQuestion() {
+        const questionData = questions[currentQuestionIndex];
+        
+        if (!questionData) return; 
+
+        const qCardId = currentSesi === 1 ? 'question-card-sesi1' : 'question-card-sesi2';
+        const qTitleId = currentSesi === 1 ? 'question-title-sesi1' : 'question-title-sesi2';
+        const nextBtnId = currentSesi === 1 ? 'next-button-sesi1' : 'next-button-sesi2';
+        const qNumber = currentQuestionIndex + 1; // Nomor soal 1-15
+        const currentSesiStart = currentSesi === 1 ? 1 : 11;
+
+        document.getElementById(qTitleId).textContent = `Soal ke ${qNumber - currentSesiStart + 1} dari ${currentSesi === 1 ? 10 : 5}`;
+
+        const optionsHtml = questionData.options.map((option, index) => {
+            const label = String.fromCharCode(65 + index); // A, B, C, D
+            return `
+                <label>
+                    <input type="radio" name="q${qNumber}" value="${label}" 
+                           ${userAnswers[currentQuestionIndex] === label ? 'checked' : ''}>
+                    ${label}. ${option}
+                    <button type="button" class="speaker-btn" onclick="event.stopPropagation(); playAudio('${questionData.audioOpt[index]}')">🔊</button>
+                </label>
+            `;
+        }).join('');
+
+        document.getElementById(qCardId).innerHTML = `
+            <div class="question-text-wrapper">
+                <p class="question-text"><strong>Soal ${qNumber}:</strong> ${questionData.text}</p>
+                <button type="button" class="speaker-btn" onclick="playAudio('${questionData.audioQ}')">🔊</button>
+            </div>
+            <div class="options">${optionsHtml}</div>
+        `;
+
+        document.getElementById(nextBtnId).textContent = qNumber === 15 ? 'Lihat Hasil Akhir' : 'NEXT';
+    }
+
+    function checkAnswerAndNext(sesi) {
+        const qNumber = currentQuestionIndex + 1;
+        const selectedOption = document.querySelector(`input[name="q${qNumber}"]:checked`);
+        
+        if (!selectedOption) {
+            alert("Mohon pilih salah satu jawaban sebelum melanjutkan.");
+            return;
+        }
+
+        const isCorrect = selectedOption.value === questions[currentQuestionIndex].answer;
+        userAnswers[currentQuestionIndex] = selectedOption.value;
+        
+        showFeedback(isCorrect, sesi);
+    }
+
+    function showFeedback(isCorrect, sesi) {
+        const overlay = document.getElementById('feedback-overlay');
+        const content = document.getElementById('feedback-content');
+        
+        content.className = 'feedback-content ' + (isCorrect ? 'feedback-correct' : 'feedback-incorrect');
+        content.innerHTML = isCorrect ? '<span class="emoji-smile">😊</span>' : '<span class="x-mark"></span>';
+        
+        overlay.classList.add('show');
+        
+        setTimeout(() => {
+            overlay.classList.remove('show');
+            handleNextQuestion(sesi);
+        }, 1200); // Tampilkan feedback selama 1.2 detik
+    }
+
+    function handleNextQuestion(sesi) {
+        if (sesi === 1) {
+            if (currentQuestionIndex < 9) {
+                currentQuestionIndex++;
+                displayQuestion();
+            } else {
+                calculateScoreSesi1();
+            }
+        } else if (sesi === 2) {
+            if (currentQuestionIndex < 14) {
+                currentQuestionIndex++;
+                displayQuestion();
+            } else {
+                calculateScoreTotal();
+            }
+        }
+    }
+
+    // --- Penghitungan Skor dan Feedback ---
+    function calculateScoreSesi1() {
+        scoreSesi1 = 0;
+        for (let i = 0; i < 10; i++) {
+            if (userAnswers[i] === questions[i].answer) {
+                scoreSesi1++;
+            }
+        }
+        
+        const incorrect = 10 - scoreSesi1;
+        document.getElementById('nama-siswa-sesi1').textContent = userName;
+        document.getElementById('score-correct-sesi1').textContent = scoreSesi1;
+        document.getElementById('score-incorrect-sesi1').textContent = incorrect;
+        
+        let feedbackText;
+        if (scoreSesi1 >= 7) {
+            feedbackText = "Wah, kamu sudah **keren** menjawab pertanyaan ini. Ayo kita tingkatkan kemampuanmu dengan menganalisa pada soal-soal berikut ini.";
+        } else {
+            feedbackText = "Kamu sudah berusaha dengan baik, **tetap semangat**. Ayo analisa soal berikut ini untuk meningkatkan kemampuanmu.";
+        }
+        document.getElementById('feedback-sesi1').innerHTML = feedbackText;
+        
+        showPage('page-hasil-sesi1');
+    }
+
+    function calculateScoreTotal() {
+        scoreTotal = 0;
+        for (let i = 0; i < 15; i++) {
+            if (userAnswers[i] === questions[i].answer) {
+                scoreTotal++;
+            }
+        }
+        
+        document.getElementById('nama-siswa-akhir').textContent = userName;
+        document.getElementById('score-total-akhir').textContent = scoreTotal;
+        
+        let feedbackText;
+        let feedbackClass;
+        if (scoreTotal >= 8) {
+            feedbackText = "Kamu Hebat";
+            feedbackClass = 'hebat';
+        } else {
+            feedbackText = "Ayo semangat";
+            feedbackClass = 'semangat';
+        }
+        document.getElementById('feedback-akhir').innerHTML = `<p class="${feedbackClass}">${feedbackText}</p>`;
+        
+        displayCorrection();
+        showPage('page-hasil-akhir');
+    }
+
+    function displayCorrection() {
+        const correctionDiv = document.getElementById('koreksi-jawaban');
+        let html = '';
+        
+        questions.forEach((q, index) => {
+            const isCorrect = userAnswers[index] === q.answer;
+            const userAns = userAnswers[index] || 'Tidak Dijawab';
+            const statusClass = isCorrect ? 'correct' : 'incorrect';
+            const statusText = isCorrect ? 'BENAR' : 'SALAH';
+            
+            html += `
+                <p>
+                    <strong>Soal ${index + 1}:</strong> ${q.text.substring(0, 70)}...<br>
+                    Jawaban Kamu: <span class="${statusClass}">${userAns} (${statusText})</span>. 
+                    Jawaban Benar: <span class="correct">${q.answer}</span>
+                </p>
+            `;
+        });
+        correctionDiv.innerHTML = html;
+    }
+
+    function exitWorksheet() {
+        // Kembali ke laman awal
+        location.reload(); 
+    }
+
+    // Inisialisasi: Tampilkan halaman awal dan atur history
+    document.addEventListener('DOMContentLoaded', () => {
+        showPage('page-start', false);
+        historyPages = ['page-start'];
+    });
+</script>
+</body>
+</html>
